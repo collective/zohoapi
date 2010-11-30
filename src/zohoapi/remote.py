@@ -12,7 +12,7 @@ WRITER_TYPES = ['doc', 'docx', 'html', 'pdf', 'sxw', 'odt', 'rtf', 'txt']
 SHEET_TYPES = ['xls', 'xlsx', 'ods', 'sxc', 'csv', 'tsv', 'pdf']
 SHOW_TYPES = ['ppt', 'pps', 'odp', 'sxi']
 
-REMOTE_API_WRITER_URL = 'http://writer.zoho.com/remotedoc.im'
+REMOTE_API_WRITER_URL = 'http://export.writer.zoho.com/remotedoc.im'
 REMOTE_API_SHEET_URL = 'http://sheet.zoho.com/remotedoc.im'
 REMOTE_API_SHOW_URL = 'http://show.zoho.com/remotedoc.im'
 
