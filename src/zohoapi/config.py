@@ -1,8 +1,11 @@
 
-
 REMOTE_API_WRITER_URL = 'http://writer.zoho.com/remotedoc.im'
 REMOTE_API_SHEET_URL = 'http://sheet.zoho.com/remotedoc.im'
 REMOTE_API_SHOW_URL = 'http://show.zoho.com/remotedoc.im'
+
+REMOTE_API_WRITER_STATUS_URL = 'http://writer.zoho.com/remotedocStatus.im'
+REMOTE_API_SHEET_STATUS_URL = 'http://sheet.zoho.com/remotedocStatus.im'
+REMOTE_API_SHOW_STATUS_URL = 'http://show.zoho.com/remotedocStatus.im'
 
 REMOTE_API_MODES = ['view', 'normaledit', 'collabview', 'collabedit']
 REMOTE_API_OUTPUTS = ['view', 'viewurl', 'url', 'editor']

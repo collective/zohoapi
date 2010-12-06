@@ -1,14 +1,14 @@
 
+import urllib
 import urllib2
 from poster.encode import multipart_encode
 from poster.streaminghttp import register_openers
+from zohoapi import config
 
-from zohoapi.i18n import WRITER_LANGUAGES
-from zohoapi.i18n import SHEET_LANGUAGES
-from zohoapi.i18n import SHOW_LANGUAGES
-
-
-
+try:
+    import json
+except:
+    import simplejson as json
 
 # Register the streaming http handlers with urllib2
 register_openers()
@@ -18,21 +18,28 @@ class Response(object):
     """ Response objects
     """
 
-    def __init__(self, txt=None, json=None):
-        self._response = response
-        for line in response.split('\n'):
-            if line.strip():
-                key, value = line.split('=', 1)
-                if value == 'TRUE':
-                    value = True
-                elif value == 'FALSE':
-                    value = False
-                setattr(self, key.lower(), value)
+    def __init__(self, response):
+        self._raw_response = response
+        self._response = dict()
+
+        try:
+            self._response = json.loads(response)['result']
+        except:
+            for line in response.split('\n'):
+                if line.strip():
+                    key, value = line.split('=', 1)
+                    key = key.lower()
+                    if value == 'TRUE':
+                        value = True
+                    elif value == 'FALSE':
+                        value = False
+                    self._response[key] = value
+
+    def getattr(self, key):
+        return self._response.get(key, None)
 
     def __str__(self):
-        return self._response
-
-
+        return self._raw_response
 
 
 def remote(apikey, mode, filename, documentid, saveurl,
@@ -45,19 +52,21 @@ def remote(apikey, mode, filename, documentid, saveurl,
     data = {'apikey': apikey, 'id': documentid, 'saveurl': saveurl}
 
     # mode must be valid
-    assert mode in REMOTE_API_MODES
+    assert mode in config.REMOTE_API_MODES
     data['mode'] = mode
 
     # filename type must be supported
     filetype = filename.split('.')[-1]
-    assert filetype in (WRITER_TYPES + SHEET_TYPES + SHOW_TYPES)
+    assert filetype in (config.WRITER_TYPES + \
+                        config.SHEET_TYPES + \
+                        config.SHOW_TYPES)
     data['filename'] = filename
-    if filetype in WRITER_TYPES:
-        apiurl = REMOTE_API_WRITER_URL
-    elif filetype in SHEET_TYPES:
-        apiurl = REMOTE_API_SHEET_URL
-    elif filetype in SHOW_TYPES:
-        apiurl = REMOTE_API_SHOW_URL
+    if filetype in config.WRITER_TYPES:
+        apiurl = config.REMOTE_API_WRITER_URL
+    elif filetype in config.SHEET_TYPES:
+        apiurl = config.REMOTE_API_SHEET_URL
+    elif filetype in config.SHOW_TYPES:
+        apiurl = config.REMOTE_API_SHOW_URL
 
     # user must provide content _or_ url
     assert (content and url) or (not content or not url)
@@ -77,16 +86,16 @@ def remote(apikey, mode, filename, documentid, saveurl,
     data['format'] = format
 
     # output shoul be valid type
-    assert output in REMOTE_API_OUTPUTS
+    assert output in config.REMOTE_API_OUTPUTS
     data['output'] = output
 
     # language must be supported by the api
-    if filetype in WRITER_TYPES:
-        assert lang in WRITER_LANGUAGES
-    elif filetype in SHEET_TYPES:
-        assert lang in SHEET_LANGUAGES
-    elif filetype in SHOW_TYPES:
-        assert lang in SHOW_LANGUAGES
+    if filetype in config.WRITER_TYPES:
+        assert lang in config.WRITER_LANGUAGES
+    elif filetype in config.SHEET_TYPES:
+        assert lang in config.SHEET_LANGUAGES
+    elif filetype in config.SHOW_TYPES:
+        assert lang in config.SHOW_LANGUAGES
     data['lang'] = lang
 
     # talk with zoho servers
@@ -101,7 +110,26 @@ def remote(apikey, mode, filename, documentid, saveurl,
         raise
 
     # handle response
-    if response.RESULT is True:
-        return response.URL
-    else:
-        raise Exception(response)
+    return response
+
+
+def remote_status(apikey, documentid, documenttype):
+    """ Status of document
+    """
+
+    documenttype = documenttype.lower()
+    if documenttype == 'writer':
+        url = config.REMOTE_API_WRITER_STATUS_URL
+    elif documenttype == 'sheet':
+        url = config.REMOTE_API_SHEET_STATUS_URL
+    elif documenttype == 'show':
+        url = config.REMOTE_API_SHOW_STATUS_URL
+
+    params = dict(
+        doc=documentid,
+        apikey=apikey,
+        )
+    url += "?" + (urllib.urlencode(params))
+    response = Response(urllib2.urlopen(urllib2.Request(url, None)).read())
+
+    return response
