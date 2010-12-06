@@ -21,6 +21,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'simplejson',
         'poster',
         ],
     test_suite='zohoapi.tests.test_suite',
