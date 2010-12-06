@@ -8,32 +8,26 @@ from zohoapi.i18n import SHEET_LANGUAGES
 from zohoapi.i18n import SHOW_LANGUAGES
 
 
-WRITER_TYPES = ['doc', 'docx', 'html', 'pdf', 'sxw', 'odt', 'rtf', 'txt']
-SHEET_TYPES = ['xls', 'xlsx', 'ods', 'sxc', 'csv', 'tsv', 'pdf']
-SHOW_TYPES = ['ppt', 'pps', 'odp', 'sxi']
-
-REMOTE_API_WRITER_URL = 'http://export.writer.zoho.com/remotedoc.im'
-REMOTE_API_SHEET_URL = 'http://sheet.zoho.com/remotedoc.im'
-REMOTE_API_SHOW_URL = 'http://show.zoho.com/remotedoc.im'
-
-REMOTE_API_MODES = ['view', 'normaledit', 'collabview', 'collabedit']
-# INFO: view and editor options are not possible since we are only interested in url
-REMOTE_API_OUTPUTS = ['viewurl', 'url']
 
 
 # Register the streaming http handlers with urllib2
 register_openers()
 
-class Response(object):
 
-    def __init__(self, response):
+class Response(object):
+    """ Response objects
+    """
+
+    def __init__(self, txt=None, json=None):
         self._response = response
         for line in response.split('\n'):
             if line.strip():
                 key, value = line.split('=', 1)
                 if value == 'TRUE':
                     value = True
-                setattr(self, key, value)
+                elif value == 'FALSE':
+                    value = False
+                setattr(self, key.lower(), value)
 
     def __str__(self):
         return self._response
@@ -42,8 +36,8 @@ class Response(object):
 
 
 def remote(apikey, mode, filename, documentid, saveurl,
-        content=None, url=None, skey=None, format=None,
-        output='url', lang='en'):
+           content=None, url=None, skey=None, format=None,
+           output='url', lang='en'):
     """ Zoho Remote API
     """
 
