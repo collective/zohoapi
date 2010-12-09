@@ -46,12 +46,11 @@ class RemoteResponse(object):
 
     def __init__(self, response):
         self._response = response
-
-    def getattr(self, key):
-        return self._response.get(key, None)
+        for key in response.keys():
+            setattr(self, key, response[key])
 
     def __str__(self):
-        return self._raw_response
+        return self._response
 
 
 class Remote(object):
@@ -83,8 +82,8 @@ class Remote(object):
         # data to send
         DATA = {
                 'apikey': self.apikey,
-                'id': self.documentid,
                 'saveurl': self.saveurl,
+                'id': documentid,
                 'content': content,
                 'mode': mode,
                 'filename': filename,
@@ -134,14 +133,18 @@ class Remote(object):
             URL = SHOW_STATUS_URL
 
         URL += "?" + (urllib.urlencode(DATA))
-        return urllib2.urlopen(urllib2.Request(URL, None)).read()
+        try:
+            return urllib2.urlopen(urllib2.Request(URL, None)).read()
+        except urllib2.HTTPError, e:
+            return e.read()
 
     def _parse_response(self, response):
         _response = dict()
         for line in response.split('\n'):
             if line.strip():
                 key, value = line.split('=', 1)
-                key = key.lower()
+                key = key.lower().strip()
+                value = value.strip()
                 if value == 'TRUE':
                     value = True
                 elif value == 'FALSE':
@@ -152,7 +155,10 @@ class Remote(object):
         return RemoteResponse(_response)
 
     def _parse_status_response(self, response):
-        return RemoteResponse(json.loads(response)['result'])
+        try:
+            return RemoteResponse(json.loads(response)['result'])
+        except:
+            return self._parse_response(response)
 
     def remote(self, *arg, **kw):
         return self._parse_response(self._raw_remote(*arg, **kw))
@@ -168,17 +174,12 @@ class Remote(object):
             doctype = 'sheet'
         elif format in SHOW_TYPES:
             doctype = 'show'
-        assert doctype is None
+        assert doctype is not None
         return doctype
 
-    def collab_edit(self, documentid, filename, content,
-                    format=None, lang='en'):
+    def collab_edit(self, documentid, filename, content, format, lang):
         """ helper methos to call remote api for collab editing of documents
         """
-
-        if format is None:
-            format = filename.split('.')[-1]
-
         return self.remote(
             mode='collabedit',
             output='url',
