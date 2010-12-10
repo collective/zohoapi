@@ -62,8 +62,8 @@ class Remote(object):
         self.saveurl = saveurl
         self.skey = skey
 
-    def _raw_remote(self, mode, filename, documentid, content,
-                    format, output, lang, username=None):
+    def _raw_remote(self, mode, filename, content, format, output, lang,
+                    username=None, documentid=None):
         """ url parameter is skipped since (for now) we only do
             form requests on remote api.
         """
@@ -83,7 +83,6 @@ class Remote(object):
         DATA = {
                 'apikey': self.apikey,
                 'saveurl': self.saveurl,
-                'id': documentid,
                 'content': content,
                 'mode': mode,
                 'filename': filename,
@@ -108,6 +107,8 @@ class Remote(object):
 
         if username is not None:
             DATA['username'] = username
+        if documentid is not None:
+            DATA['id'] = documentid
 
         # request data
         datagen, headers = multipart_encode(DATA)
@@ -140,31 +141,30 @@ class Remote(object):
 
     def _parse_response(self, response):
         _response = dict()
-        for line in response.split('\n'):
-            if line.strip():
-                key, value = line.split('=', 1)
-                key = key.lower().strip()
-                value = value.strip()
-                if value == 'TRUE':
-                    value = True
-                elif value == 'FALSE':
-                    value = False
-                elif value == 'NULL':
-                    value = None
-                _response[key] = value
-        return RemoteResponse(_response)
-
-    def _parse_status_response(self, response):
         try:
-            return RemoteResponse(json.loads(response)['result'])
+            _response = json.loads(response)
+            if 'result' in _response.keys():
+                _response = _response['result']
         except:
-            return self._parse_response(response)
+            for line in response.split('\n'):
+                if line.strip():
+                    key, value = line.split('=', 1)
+                    key = key.lower().strip()
+                    value = value.strip()
+                    if value == 'TRUE':
+                        value = True
+                    elif value == 'FALSE':
+                        value = False
+                    elif value == 'NULL':
+                        value = None
+                    _response[key] = value
+        return RemoteResponse(_response)
 
     def remote(self, *arg, **kw):
         return self._parse_response(self._raw_remote(*arg, **kw))
 
     def status(self, *arg, **kw):
-        return self._parse_status_response(self._raw_status(*arg, **kw))
+        return self._parse_response(self._raw_status(*arg, **kw))
 
     def doctype(self, format):
         doctype = None
@@ -177,15 +177,17 @@ class Remote(object):
         assert doctype is not None
         return doctype
 
-    def collab_edit(self, documentid, filename, content, format, lang):
-        """ helper methos to call remote api for collab editing of documents
+    def collab_edit(self, filename, content, format, lang,
+                    username=None, documentid=None):
+        """ helper method to call remote api for collab editing of documents
         """
         return self.remote(
             mode='collabedit',
             output='url',
-            documentid=documentid,
             filename=filename,
             content=content,
             format=format,
             lang=lang,
+            username=username,
+            documentid=documentid,
             )
