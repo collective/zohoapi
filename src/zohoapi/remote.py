@@ -50,7 +50,7 @@ class RemoteResponse(object):
             setattr(self, key, response[key])
 
     def __str__(self):
-        return self._response
+        return str(self._response)
 
 
 class Remote(object):
@@ -63,7 +63,7 @@ class Remote(object):
         self.skey = skey
 
     def _raw_remote(self, mode, filename, content, format, output, lang,
-                    username=None, documentid=None):
+                    documentid, username=None):
         """ url parameter is skipped since (for now) we only do
             form requests on remote api.
         """
@@ -78,6 +78,12 @@ class Remote(object):
             assert lang in SHEET_LANGUAGES
         elif format in SHOW_TYPES:
             assert lang in SHOW_LANGUAGES
+        assert type(documentid) is list and len(documentid) == 2
+
+        if documentid[1] == None:
+            documentid = documentid[0]
+        else:
+            documentid = documentid[1]
 
         # data to send
         DATA = {
@@ -89,6 +95,7 @@ class Remote(object):
                 'format': format,
                 'output': output,
                 'lang': lang,
+                'id': documentid,
                }
 
         # calculate url which to request
@@ -107,8 +114,6 @@ class Remote(object):
 
         if username is not None:
             DATA['username'] = username
-        if documentid is not None:
-            DATA['id'] = documentid
 
         # request data
         datagen, headers = multipart_encode(DATA)
@@ -119,6 +124,12 @@ class Remote(object):
             return error.read()
 
     def _raw_status(self, doctype, documentid):
+        assert type(documentid) is list and len(documentid) == 2
+        if documentid[1] == None:
+            documentid = documentid[0]
+        else:
+            documentid = documentid[1]
+
         DATA = {
                 'apikey': self.apikey,
                 'doc': documentid,
@@ -132,6 +143,8 @@ class Remote(object):
             URL = SHEET_STATUS_URL
         elif doctype == 'show':
             URL = SHOW_STATUS_URL
+        else:
+            Exception('wrong doctype')
 
         URL += "?" + (urllib.urlencode(DATA))
         try:
