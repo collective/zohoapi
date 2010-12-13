@@ -204,3 +204,18 @@ class Remote(object):
             username=username,
             documentid=documentid,
             )
+
+    def collab_view(self, filename, content, format, lang,
+                    username=None, documentid=None):
+        """ helper method to call remote api for collab editing of documents
+        """
+        return self.remote(
+            mode='collabview',
+            output='url',
+            filename=filename,
+            content=content,
+            format=format,
+            lang=lang,
+            username=username,
+            documentid=documentid,
+            )
