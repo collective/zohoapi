@@ -14,7 +14,7 @@ setup(
     keywords='zoho api',
     author='Rok Garbas',
     author_email='rok@garbas.si',
-    url='http://github.com/collective/zohoapi',
+    url='https://github.com/collective/zohoapi',
     license='General Public Licence',
     packages=find_packages('src'),
     package_dir={'': 'src'},

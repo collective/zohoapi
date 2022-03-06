@@ -14,20 +14,20 @@ except ImportError:
 
 
 # remote api settings 
-WRITER_URL = 'http://writer.zoho.com/remotedoc.im'
-WRITER_STATUS_URL = 'http://writer.zoho.com/remotedocStatus.im'
+WRITER_URL = 'https://writer.zoho.com/remotedoc.im'
+WRITER_STATUS_URL = 'https://writer.zoho.com/remotedocStatus.im'
 WRITER_TYPES = ['doc', 'docx', 'html', 'pdf', 'sxw', 'odt', 'rtf', 'txt']
 WRITER_LANGUAGES = ['en', 'da', 'de', 'es', 'hu', 'it', 'ja', 'nl', 'pl',
         'pt', 'pt_BR', 'pt_EU', 'ru', 'sv', 'tr', 'zh', 'zh_CN']
 
-SHEET_URL = 'http://sheet.zoho.com/remotedoc.im'
-SHEET_STATUS_URL = 'http://sheet.zoho.com/remotedocStatus.im'
+SHEET_URL = 'https://sheet.zoho.com/remotedoc.im'
+SHEET_STATUS_URL = 'https://sheet.zoho.com/remotedocStatus.im'
 SHEET_TYPES = ['xls', 'xlsx', 'ods', 'sxc', 'csv', 'tsv', 'pdf']
 SHEET_LANGUAGES = ['en', 'da', 'de', 'es', 'it', 'ja', 'nl', 'pl', 'pt',
         'ru', 'sv', 'tr', 'zh', 'bg', 'ca', 'cz', 'eo', 'no', 'ro']
 
-SHOW_URL = 'http://show.zoho.com/remotedoc.im'
-SHOW_STATUS_URL = 'http://show.zoho.com/remotedocStatus.im'
+SHOW_URL = 'https://show.zoho.com/remotedoc.im'
+SHOW_STATUS_URL = 'https://show.zoho.com/remotedocStatus.im'
 SHOW_TYPES = ['ppt', 'pps', 'odp', 'sxi']
 SHOW_LANGUAGES = ['en', 'da', 'de', 'es', 'it', 'ja', 'nl', 'pt_BR',
         'pt_EU','sv', 'tr', 'zh']
